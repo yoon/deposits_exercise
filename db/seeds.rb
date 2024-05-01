@@ -7,3 +7,10 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+10.times do
+  tl = Tradeline.create(name: Faker::Company.name, amount: Faker::Number.between(from: 0.0, to: 1000.0).round(2))
+  (2..8).to_a.sample.times do
+    tl.deposits.create(deposit_on: Faker::Date.forward(days: 10), amount: Faker::Number.between(from: 0.0, to: tl.amount / 10).round(2) )
+  end
+end

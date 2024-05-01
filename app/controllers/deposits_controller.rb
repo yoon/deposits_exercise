@@ -1,52 +1,41 @@
 class DepositsController < ApplicationController
-  before_action :set_deposit, only: %i[ show update destroy ]
+  before_action :set_tradeline, only: %i[ index show create ]
+  before_action :set_deposit, only: %i[ show ]
 
-  # GET /deposits
-  # GET /deposits.json
+  # GET /tradelines/1/deposits.json
   def index
-    @deposits = Deposit.all
+    render json: @tradeline.deposits
   end
 
-  # GET /deposits/1
-  # GET /deposits/1.json
+  # GET /tradelines/1/deposits/1.json
   def show
+    render json: @deposit
   end
 
-  # POST /deposits
-  # POST /deposits.json
+  # POST /tradelines/1/deposits.json
   def create
-    @deposit = Deposit.new(deposit_params)
+    @deposit = @tradeline.deposits.build(deposit_params)
 
     if @deposit.save
-      render :show, status: :created, location: @deposit
+      render json: @deposit
     else
-      render json: @deposit.errors, status: :unprocessable_entity
+      render json: { error: @deposit.errors }, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /deposits/1
-  # PATCH/PUT /deposits/1.json
-  def update
-    if @deposit.update(deposit_params)
-      render :show, status: :ok, location: @deposit
-    else
-      render json: @deposit.errors, status: :unprocessable_entity
-    end
-  end
-
-  # DELETE /deposits/1
-  # DELETE /deposits/1.json
-  def destroy
-    @deposit.destroy!
+  rescue_from ActionController::ParameterMissing do |e|
+    render json: { error: e.message }, status: :bad_request
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_deposit
-      @deposit = Deposit.find(params[:id])
+    def set_tradeline
+      @tradeline = Tradeline.find(params[:tradeline_id])
     end
 
-    # Only allow a list of trusted parameters through.
+    def set_deposit
+      @deposit = @tradeline.deposits.find(params[:id])
+    end
+
     def deposit_params
       params.require(:deposit).permit(:deposit_on, :amount, :tradeline_id)
     end
